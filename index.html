@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,172 +10,219 @@
             font-family: Lato, sans-serif;
             margin: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        table, th, td {
+
+        table,
+        th,
+        td {
             border: 1px solid black;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: center;
         }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
         }
-		.container {
-        margin-bottom: 20px;
-		}
 
-		.area-selector {
-        margin-bottom: 20px;
-		}
+        .container {
+            margin-bottom: 20px;
+        }
 
-		.area-selector label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-		}
+        .area-selector {
+            margin-bottom: 20px;
+        }
 
-		.area-selector select {
-        padding: 8px;
-        font-size: 16px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        width: 200px;
-		}
+        .area-selector label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .area-selector select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 200px;
+        }
     </style>
 </head>
+
 <body>
-  <!--  <h1>Calculadora de Nocturnidad</h1> -->
-	<div class="container">
+    <div class="container">
         <div class="area-selector">
             <label for="areaSelect">Área:</label>
             <select id="areaSelect" onchange="updateShifts()">
-				<option value="NONE">Selecciona Área</option>
+                <option value="NONE">Selecciona Área</option>
                 <option value="OB">OUTBOUND</option>
                 <option value="IB">RSP / INBOUND / ICQA</option>
             </select>
         </div>
-		<table>
-			<thead>
-				<tr>
-					<th>Fecha</th>
-					<th>Turno</th>
-				</tr>
-			</thead>
-			<tbody id="shiftTable">
-				<!-- Las filas se generan dinámicamente -->
-			</tbody>
-		</table>
-	</div>
-    <button onclick="calculateNightHours()">Calcular</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Turno</th>
+                    <th>¿Es fin de semana?</th>
+                </tr>
+            </thead>
+            <tbody id="shiftTable">
+                <!-- Rows are generated dynamically -->
+            </tbody>
+        </table>
+    </div>
+    <button onclick="calculate()">Calcular</button>
     <h2>Horas nocturnas: <span id="totalNightHours">0</span> horas</h2>
+    <h2>Prima fin de semana: <span id="totalWeekendPremium">0</span> horas</h2>
 
     <script>
         const areaShifts = {
-    OB: {
-        "e": 0,
-        "l": 1.33,
-        "ln": 6,
-        "ln1": 6.5,
-        //"l'": 1.33, DESACTIVADO PORQUE SOLO HAY UNA PERSONA CON ESTE TURNO
-        "n7.75": 6.58,
-        "n5.25": 5.25,
-        "n7.2": 6.58,
-        "n8": 6.5,
-        "n8.33": 6.5,
-        "n8.5": 7.33
-    },
-    IB: {
-        "e": 0,
-        "l": 0.92,
-        "ln": 6,
-        "ln1": 6.5,
-        //"l'": 0.92, DESACTIVADO PORQUE NO EXISTE NADIE CON ESTE TURNO
-        "n7.75": 7,
-        "n5.25": 5.25,
-        "n7.2": 7,
-        "n8": 6.5,
-        "n8.33": 6.5,
-        "n8.5": 7.75
-        // Añade turnos y horas nocturnas dentro de cada área
-    },
-};
+            OB: {
+                "e": 0,
+                "l": 1.33,
+                "ln": 6,
+                "ln1": 6.5,
+                "n7.75": 6.58,
+                "n5.25": 5.25,
+                "n7.2": 6.58,
+                "n8": 6.5,
+                "n8.33": 6.5,
+                "n8.5": 7.33
+            },
+            IB: {
+                "e": 0,
+                "l": 0.92,
+                "ln": 6,
+                "ln1": 6.5,
+                "n7.75": 7,
+                "n5.25": 5.25,
+                "n7.2": 7,
+                "n8": 6.5,
+                "n8.33": 6.5,
+                "n8.5": 7.75
+            }
+        };
 
-// Objeto currentShifts basado en el area seleccionada
-let currentShifts = areaShifts.area1;
+        // Weekend premium values per shift
+        const weekendPremiums = {
+            OB: {
+                "e": { current: 0, next: 0 },
+                "l": { current: 1, next: 0.5 },
+                "ln": { current: 2, next: 1 },
+                "ln1": { current: 2.5, next: 1.25 },
+                "n7.75": { current: 3, next: 1.5 },
+                "n5.25": { current: 2, next: 1 },
+                "n7.2": { current: 3, next: 1.5 },
+                "n8": { current: 3.5, next: 1.75 },
+                "n8.33": { current: 3.5, next: 1.75 },
+                "n8.5": { current: 4, next: 2 }
+            },
+            IB: {
+                "e": { current: 0, next: 0 },
+                "l": { current: 0.5, next: 0.25 },
+                "ln": { current: 2, next: 1 },
+                "ln1": { current: 2.5, next: 1.25 },
+                "n7.75": { current: 3, next: 1.5 },
+                "n5.25": { current: 2, next: 1 },
+                "n7.2": { current: 3, next: 1.5 },
+                "n8": { current: 3.5, next: 1.75 },
+                "n8.33": { current: 3.5, next: 1.75 },
+                "n8.5": { current: 4, next: 2 }
+            }
+        };
 
-// Función para actualizar los shifts en funcion del area
-function updateShifts() {
-    const selectedArea = document.getElementById("areaSelect").value;
-    currentShifts = areaShifts[selectedArea];
-    
-    // Limpia la selección al cambiar area
-    for (let day = 1; day <= 31; day++) {
-        const select = document.getElementById(`shiftDay${day}`);
-        select.innerHTML = '<option value="">No trabajado</option>';
-        
-        // Opciones diferentes basadas en currentshifts
-        for (const shiftName in currentShifts) {
-            const option = document.createElement("option");
-            option.value = shiftName;
-            option.textContent = shiftName;
-            select.appendChild(option);
+        let currentShifts = {};
+        let currentPremiums = {};
+
+        function updateShifts() {
+            const selectedArea = document.getElementById("areaSelect").value;
+
+            if (selectedArea === "NONE") {
+                currentShifts = {};
+                currentPremiums = {};
+                return;
+            }
+
+            currentShifts = areaShifts[selectedArea];
+            currentPremiums = weekendPremiums[selectedArea];
+
+            for (let day = 1; day <= 31; day++) {
+                const select = document.getElementById(`shiftDay${day}`);
+                select.innerHTML = '<option value="">No trabajado</option>';
+
+                for (const shiftName in currentShifts) {
+                    const option = document.createElement("option");
+                    option.value = shiftName;
+                    option.textContent = shiftName;
+                    select.appendChild(option);
+                }
+            }
         }
-    }
-}
 
-// Genera la tabla basado en currentshifts
-const shiftTable = document.getElementById("shiftTable");
-for (let day = 1; day <= 31; day++) {
-    const row = document.createElement("tr");
+        const shiftTable = document.getElementById("shiftTable");
+        for (let day = 1; day <= 31; day++) {
+            const row = document.createElement("tr");
 
-    // Columna de fecha
-    const dateCell = document.createElement("td");
-    dateCell.textContent = `Día ${day}`;
-    row.appendChild(dateCell);
+            const dateCell = document.createElement("td");
+            dateCell.textContent = `Día ${day}`;
+            row.appendChild(dateCell);
 
-    // Columna de turnos
-    const shiftCell = document.createElement("td");
-    const select = document.createElement("select");
-    select.id = `shiftDay${day}`;
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "No trabajado";
-    select.appendChild(defaultOption);
+            const shiftCell = document.createElement("td");
+            const select = document.createElement("select");
+            select.id = `shiftDay${day}`;
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "No trabajado";
+            select.appendChild(defaultOption);
+            shiftCell.appendChild(select);
+            row.appendChild(shiftCell);
 
-    // Poblar las opciones de turno
-    for (const shiftName in currentShifts) {
-        const option = document.createElement("option");
-        option.value = shiftName;
-        option.textContent = shiftName;
-        select.appendChild(option);
-    }
-    shiftCell.appendChild(select);
-    row.appendChild(shiftCell);
+            const weekendCell = document.createElement("td");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = `weekendDay${day}`;
+            weekendCell.appendChild(checkbox);
+            row.appendChild(weekendCell);
 
-    shiftTable.appendChild(row);
-}
-
-// Calcula basado en currentshifts
-function calculateNightHours() {
-    let totalNightHours = 0;
-
-    for (let day = 1; day <= 31; day++) {
-        const selectedShift = document.getElementById(`shiftDay${day}`).value;
-
-        if (selectedShift && currentShifts[selectedShift] !== undefined) {
-            totalNightHours += currentShifts[selectedShift];
+            shiftTable.appendChild(row);
         }
-    }
 
-    document.getElementById("totalNightHours").textContent = totalNightHours.toFixed(2);
-}
+        function calculate() {
+            let totalNightHours = 0;
+            let totalWeekendPremium = 0;
+
+            for (let day = 1; day <= 31; day++) {
+                const selectedShift = document.getElementById(`shiftDay${day}`).value;
+                const isWeekend = document.getElementById(`weekendDay${day}`).checked;
+                const isNextWeekend = (day < 31) ? document.getElementById(`weekendDay${day + 1}`).checked : false;
+
+                if (selectedShift && currentShifts[selectedShift] !== undefined) {
+                    totalNightHours += currentShifts[selectedShift];
+
+                    if (isWeekend) {
+                        totalWeekendPremium += currentPremiums[selectedShift].current;
+                    }
+                    if (isNextWeekend) {
+                        totalWeekendPremium += currentPremiums[selectedShift].next;
+                    }
+                }
+            }
+
+            document.getElementById("totalNightHours").textContent = totalNightHours.toFixed(2);
+            document.getElementById("totalWeekendPremium").textContent = totalWeekendPremium.toFixed(2);
+        }
     </script>
 </body>
+
 </html>
