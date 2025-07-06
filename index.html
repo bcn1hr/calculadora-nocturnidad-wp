@@ -82,9 +82,16 @@
             </tbody>
         </table>
     </div>
+    <div style="margin-bottom: 20px;">
+    <label>
+        <input type="checkbox" id="isNextMonthWeekend">
+        ¿El día 1 del próximo mes es fin de semana?
+    </label>
+    </div>
+
     <button onclick="calculate()">Calcular</button>
     <h2>Horas nocturnas: <span id="totalNightHours">0</span> horas</h2>
-    <h2>Prima fin de semana: <span id="totalWeekendPremium">0</span> horas</h2>
+    <h2>Weekend premium: <span id="totalWeekendPremium">0</span> horas</h2>
 
     <script>
         const areaShifts = {
@@ -201,15 +208,22 @@
         function calculate() {
             let totalNightHours = 0;
             let totalWeekendPremium = 0;
-
+            const isDay32Weekend = document.getElementById("isNextMonthWeekend").checked;
+        
             for (let day = 1; day <= 31; day++) {
                 const selectedShift = document.getElementById(`shiftDay${day}`).value;
                 const isWeekend = document.getElementById(`weekendDay${day}`).checked;
-                const isNextWeekend = (day < 31) ? document.getElementById(`weekendDay${day + 1}`).checked : false;
-
+                let isNextWeekend;
+        
+                if (day < 31) {
+                    isNextWeekend = document.getElementById(`weekendDay${day + 1}`).checked;
+                } else {
+                    isNextWeekend = isDay32Weekend;
+                }
+        
                 if (selectedShift && currentShifts[selectedShift] !== undefined) {
                     totalNightHours += currentShifts[selectedShift];
-
+        
                     if (isWeekend) {
                         totalWeekendPremium += currentPremiums[selectedShift].current;
                     }
@@ -218,7 +232,7 @@
                     }
                 }
             }
-
+        
             document.getElementById("totalNightHours").textContent = totalNightHours.toFixed(2);
             document.getElementById("totalWeekendPremium").textContent = totalWeekendPremium.toFixed(2);
         }
