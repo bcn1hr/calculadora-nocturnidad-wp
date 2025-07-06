@@ -94,6 +94,8 @@
     <h2>Weekend premium: <span id="totalWeekendPremium">0</span> horas</h2>
 
     <script>
+
+        // Valores de nocturnidad por cada shift
         const areaShifts = {
             OB: {
                 "e": 0,
@@ -121,12 +123,12 @@
             }
         };
 
-        // Weekend premium values per shift
+        // Valores de WP por cada shift en función de si el día de inicio o el siguiente o ambos son en fin de semana
         const weekendPremiums = {
             OB: {
                 "e": { current: 0, next: 0 },
                 "l": { current: 0.5, next: 0 },
-                "ln": { current: 2, next: 1 },
+                "ln": { current: 4, next: 1 },
                 "ln1": { current: 2.5, next: 1.25 },
                 "n7.75": { current: 3, next: 1.5 },
                 "n5.25": { current: 2, next: 1 },
