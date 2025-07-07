@@ -9,6 +9,7 @@
         body {
             font-family: Lato, sans-serif;
             margin: 20px;
+            background-color: #f4f4f4;
         }
 
         table {
@@ -23,16 +24,23 @@
             border: 1px solid black;
         }
 
-        th,
+        th {
+            background-color: #586c74;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+        }
+
         td {
             padding: 10px;
             text-align: center;
         }
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
+        td:first-child {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            width: 100px;
         }
 
         .container {
@@ -56,6 +64,44 @@
             border: 1px solid #ccc;
             width: 200px;
         }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #586c74;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #47575e;
+        }
+
+        /* Make the checkbox column thinner */
+        .checkbox-column {
+            width: 50px;
+        }
+
+        /* Align the "next month" checkbox to the right under the last checkbox */
+        .next-month-checkbox {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -74,7 +120,7 @@
                 <tr>
                     <th>Fecha</th>
                     <th>Turno</th>
-                    <th>¿Es fin de semana?</th>
+                    <th class="checkbox-column">¿Es fin de semana?</th>
                 </tr>
             </thead>
             <tbody id="shiftTable">
@@ -82,11 +128,12 @@
             </tbody>
         </table>
     </div>
-    <div style="margin-bottom: 20px;">
-    <label>
-        <input type="checkbox" id="isNextMonthWeekend">
-        ¿El día 1 del próximo mes es fin de semana?
-    </label>
+
+    <div class="next-month-checkbox">
+        <label>
+            <input type="checkbox" id="isNextMonthWeekend">
+            ¿El día 1 del próximo mes es fin de semana?
+        </label>
     </div>
 
     <button onclick="calculate()">Calcular</button>
@@ -94,8 +141,6 @@
     <h2>Weekend premium: <span id="totalWeekendPremium">0</span> horas</h2>
 
     <script>
-
-        // Valores de nocturnidad por cada shift
         const areaShifts = {
             OB: {
                 "e": 0,
@@ -123,7 +168,6 @@
             }
         };
 
-        // Valores de WP por cada shift en función de si el día de inicio o el siguiente o ambos son en fin de semana
         const weekendPremiums = {
             OB: {
                 "e": { current: 0, next: 0 },
@@ -211,21 +255,21 @@
             let totalNightHours = 0;
             let totalWeekendPremium = 0;
             const isDay32Weekend = document.getElementById("isNextMonthWeekend").checked;
-        
+
             for (let day = 1; day <= 31; day++) {
                 const selectedShift = document.getElementById(`shiftDay${day}`).value;
                 const isWeekend = document.getElementById(`weekendDay${day}`).checked;
                 let isNextWeekend;
-        
+
                 if (day < 31) {
                     isNextWeekend = document.getElementById(`weekendDay${day + 1}`).checked;
                 } else {
                     isNextWeekend = isDay32Weekend;
                 }
-        
+
                 if (selectedShift && currentShifts[selectedShift] !== undefined) {
                     totalNightHours += currentShifts[selectedShift];
-        
+
                     if (isWeekend) {
                         totalWeekendPremium += currentPremiums[selectedShift].current;
                     }
@@ -234,7 +278,7 @@
                     }
                 }
             }
-        
+
             document.getElementById("totalNightHours").textContent = totalNightHours.toFixed(2);
             document.getElementById("totalWeekendPremium").textContent = totalWeekendPremium.toFixed(2);
         }
