@@ -46,7 +46,7 @@
         /* Gris con transparencia para el fondo */
         td:nth-child(2),
         td:nth-child(3) {
-            background-color: rgba(224, 224, 224, 0.5);
+            background-color: rgba(224, 224, 224, 0.25);
         }
 
         .container {
@@ -130,7 +130,7 @@
                 </tr>
             </thead>
             <tbody id="shiftTable">
-                <!-- Rows are generated dynamically -->
+                <!-- Filas se generan de forma dinámica -->
             </tbody>
         </table>
     </div>
@@ -176,28 +176,28 @@
 
         const weekendPremiums = {
             OB: {
-                "e": { current: 0, next: 0 },
-                "l": { current: 0.5, next: 0 },
-                "ln": { current: 4, next: 1 },
-                "ln1": { current: 2.5, next: 1.25 },
-                "n7.75": { current: 3, next: 1.5 },
-                "n5.25": { current: 2, next: 1 },
-                "n7.2": { current: 3, next: 1.5 },
-                "n8": { current: 3.5, next: 1.75 },
-                "n8.33": { current: 3.5, next: 1.75 },
-                "n8.5": { current: 4, next: 2 }
+                "e": { current: 8, next: 0 },
+                "l": { current: 8, next: 0 },
+                "ln": { current: 4, next: 4.17 },
+                "ln1": { current: 3.5, next: 4.67 },
+                "n7.75": { current: 0.75, next: 7.17 },
+                "n5.25": { current: 0.25, next: 5 },
+                "n7.2": { current: 0.75, next: 6.62 },
+                "n8": { current: 3.5, next: 4.67 },
+                "n8.33": { current: 3.83, next: 4.67 },
+                "n8.5": { current: 1.5, next: 7.17 }
             },
             IB: {
-                "e": { current: 0, next: 0 },
-                "l": { current: 0.5, next: 0 },
-                "ln": { current: 2, next: 1 },
-                "ln1": { current: 2.5, next: 1.25 },
-                "n7.75": { current: 3, next: 1.5 },
-                "n5.25": { current: 2, next: 1 },
-                "n7.2": { current: 3, next: 1.5 },
-                "n8": { current: 3.5, next: 1.75 },
-                "n8.33": { current: 3.5, next: 1.75 },
-                "n8.5": { current: 4, next: 2 }
+                "e": { current: 8, next: 0 },
+                "l": { current: 8, next: 0 },
+                "ln": { current: 4, next: 4.17 },
+                "ln1": { current: 3.5, next: 4.67 },
+                "n7.75": { current: 1.17, next: 6.75 },
+                "n5.25": { current: 0.25, next: 5 },
+                "n7.2": { current: 1.17, next: 6.2 },
+                "n8": { current: 3.5, next: 4.67 },
+                "n8.33": { current: 3.83, next: 4.67 },
+                "n8.5": { current: 1.92, next: 6.75 }
             }
         };
 
